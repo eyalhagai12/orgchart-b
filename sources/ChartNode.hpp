@@ -19,6 +19,12 @@ private:
 public:
     // constructor destructor
     ChartNode(const std::string &data) : data(data) {}
+    ChartNode(const ChartNode &&other) noexcept
+    {
+        this->data = other.data;
+        this->children = other.children;
+    }
+    ChartNode(const ChartNode &other) : data(other.data), children(other.children) {}
     ~ChartNode()
     {
         for (ChartNode *node : this->children)
@@ -39,4 +45,8 @@ public:
     void add_child(ChartNode *node);
     size_t length();
     char at(size_t i);
+
+    // operator overrides
+    ChartNode &operator=(ChartNode &&other) noexcept; // move assignment operator
+    ChartNode &operator=(const ChartNode &other);     // copy assignment operator
 };

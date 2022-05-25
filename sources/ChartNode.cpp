@@ -27,3 +27,24 @@ std::ostream &ariel::operator<<(std::ostream &out, const ChartNode *node)
     out << node->data;
     return out;
 }
+
+ChartNode &ChartNode::operator=(ChartNode &&other) noexcept
+{
+    if (this != &other)
+    {
+        this->data = other.data;
+        this->children = other.children;
+    }
+
+    return *this;
+}
+
+ChartNode &ChartNode::operator=(const ChartNode &other)
+{
+    if (this != &other)
+    {
+        this->data = other.data;
+        this->children = std::vector<ChartNode *>(other.children);
+    }
+    return *this;
+}

@@ -17,7 +17,7 @@ OrgChart &OrgChart::add_root(const std::string &root)
 }
 
 /*
-    search for a node iteratively 
+    search for a node iteratively
 */
 ChartNode *OrgChart::get_node(const std::string &title) const
 {
@@ -63,10 +63,10 @@ OrgChart &OrgChart::add_sub(const std::string &parent, const std::string &subord
         throw std::runtime_error("Cant Add Sub Without Root!\n");
     }
 
-    ChartNode *new_node = new ChartNode(subordinate);
     ChartNode *node = this->get_node(parent);
     if (node != nullptr)
     {
+        ChartNode *new_node = new ChartNode(subordinate);
         node->add_child(new_node);
     }
     else
@@ -170,11 +170,27 @@ std::ostream &ariel::operator<<(std::ostream &out, OrgChart &organization)
     return out;
 }
 
-// bool operator==(ChartNode *node, std::string &str)
-// {
-//     return str.compare(node->get_data()) == 0;
-// }
-// bool operator==(std::string &str, ChartNode *node)
-// {
-//     return node == str;
-// }
+OrgChart &OrgChart::operator=(OrgChart &&other) noexcept
+{
+    if (this != &other)
+    {
+        this->root = other.root;
+    }
+    return *this;
+}
+
+OrgChart &OrgChart::operator=(const OrgChart &other)
+{
+    if (this != &other)
+    {
+        if (this->root != nullptr)
+        {
+            delete this->root;
+            this->root = nullptr;
+        }
+
+        this->root = new ChartNode(*(other.root));
+    }
+
+    return *this;
+}

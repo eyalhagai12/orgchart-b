@@ -24,6 +24,13 @@ private:
 public:
     // constructor and destructor
     OrgChart() : root(nullptr) {}
+    OrgChart(const OrgChart &other) : root(nullptr)
+    {
+        if (other.root != nullptr)
+        {
+        }
+    }
+    OrgChart(const OrgChart &&other) noexcept : root(other.root) {}
     ~OrgChart() { delete root; }
 
     // iterators (might change implementations)
@@ -51,13 +58,21 @@ public:
                 }
             }
         }
-        ~level_order_iterator() {}
+        level_order_iterator(const level_order_iterator &other) : node(other.node), node_queue(other.node_queue) {}
+        level_order_iterator(level_order_iterator &&other) noexcept
+        {
+            this->node = other.node;
+            this->node_queue = other.node_queue;
+        }
+        ~level_order_iterator() = default;
 
         // operator overloads
         bool operator!=(const level_order_iterator &other) const;
         level_order_iterator &operator++();
         ChartNode *operator->() const;
         std::string operator*() const;
+        level_order_iterator &operator=(const level_order_iterator &other);
+        level_order_iterator &operator=(level_order_iterator &&other) noexcept;
     };
 
     // --------------------------------------------------------------------
@@ -99,13 +114,21 @@ public:
                 this->node_stack.pop();
             }
         }
-        ~reverse_level_order_iterator() {}
+        reverse_level_order_iterator(const reverse_level_order_iterator &other) : node(other.node), node_stack(other.node_stack) {}
+        reverse_level_order_iterator(reverse_level_order_iterator &&other) noexcept
+        {
+            this->node = other.node;
+            this->node_stack = other.node_stack;
+        }
+        ~reverse_level_order_iterator() = default;
 
         // operator overloads
         bool operator!=(const reverse_level_order_iterator &) const;
         reverse_level_order_iterator &operator++();
         ChartNode *operator->() const;
         std::string operator*() const;
+        reverse_level_order_iterator &operator=(const reverse_level_order_iterator &other);
+        reverse_level_order_iterator &operator=(reverse_level_order_iterator &&other) noexcept;
     };
 
     // --------------------------------------------------------------------
@@ -135,13 +158,21 @@ public:
                 }
             }
         }
-        ~preorder_iterator() {}
+        preorder_iterator(const preorder_iterator &other) : node(other.node), node_stack(other.node_stack) {}
+        preorder_iterator(preorder_iterator &&other) noexcept
+        {
+            this->node = other.node;
+            this->node_stack = other.node_stack;
+        }
+        ~preorder_iterator() = default;
 
         // operator overloads
         bool operator!=(const preorder_iterator &other) const;
         preorder_iterator &operator++();
         ChartNode *operator->() const;
         std::string operator*() const;
+        preorder_iterator &operator=(const preorder_iterator &other);
+        preorder_iterator &operator=(preorder_iterator &&other) noexcept;
     };
 
     // friend classes
@@ -168,4 +199,6 @@ public:
     friend bool operator==(ChartNode *node, std::string &str);
     friend bool operator==(std::string &str, ChartNode *node);
     friend std::ostream &ariel::operator<<(std::ostream &out, OrgChart &organization); // override << operator
+    OrgChart &operator=(OrgChart &&other) noexcept;
+    OrgChart &operator=(const OrgChart &other);
 };
