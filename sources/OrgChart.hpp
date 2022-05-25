@@ -19,12 +19,12 @@ private:
     ChartNode *root;
 
     // a simple private function to find a node in the tree
-    ChartNode *get_node(ChartNode *root, const std::string &title) const;
+    ChartNode *get_node(const std::string &title) const;
 
 public:
     // constructor and destructor
     OrgChart() : root(nullptr) {}
-    ~OrgChart() {}
+    ~OrgChart() { delete root; }
 
     // iterators (might change implementations)
     // --------------------------------------------------------------------
@@ -32,9 +32,6 @@ public:
     class level_order_iterator
     {
     private:
-        // the container on which to iterate
-        const OrgChart &container;
-
         // current node
         ChartNode *node;
 
@@ -43,8 +40,7 @@ public:
 
     public:
         // constructor destructor
-        level_order_iterator(const OrgChart &organization) : container(organization),
-                                                             node_queue(std::queue<ChartNode *>()),
+        level_order_iterator(const OrgChart &organization) : node_queue(std::queue<ChartNode *>()),
                                                              node(organization.root)
         {
             if (node != nullptr)
@@ -69,9 +65,6 @@ public:
     class reverse_level_order_iterator
     {
     private:
-        // the container on which to iterate
-        const OrgChart &container;
-
         // current node
         ChartNode *node;
 
@@ -80,19 +73,29 @@ public:
 
     public:
         // constructor destructor
-        reverse_level_order_iterator(const OrgChart &organization) : container(organization),
-                                                                     node(organization.root),
+        reverse_level_order_iterator(const OrgChart &organization) : node(organization.root),
                                                                      node_stack(std::stack<ChartNode *>())
         {
             if (node != nullptr)
             {
-                this->node_stack.push(nullptr);
-                for (auto it = organization.begin_level_order(); it != organization.end_level_order(); ++it)
+                std::queue<ChartNode *> queue;
+                queue.push(node);
+
+                while (!queue.empty())
                 {
-                    ChartNode *node = container.get_node(container.root, *it);
-                    this->node_stack.push(node);
+                    ChartNode **pnode = &queue.front();
+                    queue.pop();
+                    this->node_stack.push(*pnode);
+
+                    std::vector<ChartNode *> child_vec = (*pnode)->get_children();
+                    std::reverse(child_vec.begin(), child_vec.end());
+                    for (ChartNode *cnode : child_vec)
+                    {
+                        queue.push(cnode);
+                    }
                 }
-                this->node = this->node_stack.top();
+
+                node = this->node_stack.top();
                 this->node_stack.pop();
             }
         }
@@ -110,9 +113,6 @@ public:
     class preorder_iterator
     {
     private:
-        // the container on which to iterate
-        const OrgChart &container;
-
         // current node
         ChartNode *node;
 
@@ -121,8 +121,7 @@ public:
 
     public:
         // constructor destructor
-        preorder_iterator(const OrgChart &organization) : container(organization),
-                                                          node(organization.root),
+        preorder_iterator(const OrgChart &organization) : node(organization.root),
                                                           node_stack(std::stack<ChartNode *>())
         {
             this->node_stack.push(nullptr);
@@ -145,9 +144,11 @@ public:
         std::string operator*() const;
     };
 
+    // friend classes
     friend class level_order_iterator;
     friend class reverse_level_order_iterator;
     friend class preorder_iterator;
+
     // --------------------------------------------------------------------
     // --------------------------------------------------------------------
 
@@ -164,5 +165,7 @@ public:
     preorder_iterator end_preorder() const;                             // get the ending an iterator for preorder traversal
 
     // operator overloads
+    friend bool operator==(ChartNode *node, std::string &str);
+    friend bool operator==(std::string &str, ChartNode *node);
     friend std::ostream &ariel::operator<<(std::ostream &out, OrgChart &organization); // override << operator
 };

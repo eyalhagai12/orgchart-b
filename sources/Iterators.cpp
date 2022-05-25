@@ -4,9 +4,6 @@
 using ariel::ChartNode;
 using ariel::OrgChart;
 
-std::string s1 = "";
-ChartNode def(s1);
-
 // ---------------------------------------------------------------------------------------------------------
 // level order iterator
 bool OrgChart::level_order_iterator::operator!=(const level_order_iterator &other) const
@@ -15,7 +12,7 @@ bool OrgChart::level_order_iterator::operator!=(const level_order_iterator &othe
 }
 OrgChart::level_order_iterator &OrgChart::level_order_iterator::operator++()
 {
-    if (this->node_queue.size() > 0)
+    if (!this->node_queue.empty())
     {
         this->node = this->node_queue.front();
         this->node_queue.pop();
@@ -48,7 +45,7 @@ std::string OrgChart::level_order_iterator::operator*() const
 bool OrgChart::reverse_level_order_iterator::operator!=(const reverse_level_order_iterator &other) const { return this->node != other.node; }
 OrgChart::reverse_level_order_iterator &OrgChart::reverse_level_order_iterator::operator++()
 {
-    if (this->node_stack.size() > 0)
+    if (!this->node_stack.empty())
     {
         this->node = this->node_stack.top();
         this->node_stack.pop();
@@ -73,7 +70,7 @@ std::string OrgChart::reverse_level_order_iterator::operator*() const
 bool OrgChart::preorder_iterator::operator!=(const preorder_iterator &other) const { return this->node != other.node; }
 OrgChart::preorder_iterator &OrgChart::preorder_iterator::operator++()
 {
-    if (this->node_stack.size() > 0)
+    if (!this->node_stack.empty())
     {
         this->node = this->node_stack.top();
         this->node_stack.pop();

@@ -19,7 +19,13 @@ private:
 public:
     // constructor destructor
     ChartNode(const std::string &data) : data(data) {}
-    ~ChartNode() {}
+    ~ChartNode()
+    {
+        for (ChartNode *node : this->children)
+        {
+            delete node;
+        }
+    }
 
     // friends
     friend std::ostream &ariel::operator<<(std::ostream &out, const ChartNode &node);

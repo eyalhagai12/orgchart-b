@@ -17,58 +17,122 @@ OrgChart &OrgChart::add_root(const std::string &root)
 }
 
 /*
-    search for a node recursively (might change to something else)
+    search for a node iteratively 
 */
-ChartNode *OrgChart::get_node(ChartNode *root, const std::string &title) const
+ChartNode *OrgChart::get_node(const std::string &title) const
 {
-    if (root->get_data() == title) // if found the return it
-    {
-        return root;
-    }
-    else if (root->get_children().size() == 0) // if not and there is no where to go return null
-    {
-        return nullptr;
-    }
+    // a queue for nodes
+    std::queue<ChartNode *> queue;
+    ChartNode *node = nullptr;
+    bool found = false;
+    queue.push(this->root);
 
-    // else work recursively  on the children
-    for (ChartNode *node : root->get_children())
+    // iterate over all nodes
+    while (!queue.empty())
     {
-        ChartNode *result = get_node(node, title);
-        if (result != nullptr)
+        // pop first node from the queue
+        node = queue.front();
+        queue.pop();
+
+        // check if the node was found
+        if (node->get_data() == title)
         {
-            return result;
+            found = true;
+            break;
+        }
+
+        // add all the nodes children
+        std::vector<ChartNode *> child_vec = node->get_children();
+        for (auto it = child_vec.begin(); it != child_vec.end(); ++it)
+        {
+            queue.push(*it);
         }
     }
 
+    if (found)
+    {
+        return node;
+    }
     return nullptr;
 }
 
 OrgChart &OrgChart::add_sub(const std::string &parent, const std::string &subordinate)
 {
+    if (this->root == nullptr)
+    {
+        throw std::runtime_error("Cant Add Sub Without Root!\n");
+    }
+
     ChartNode *new_node = new ChartNode(subordinate);
-    ChartNode *node = this->get_node(this->root, parent);
+    ChartNode *node = this->get_node(parent);
     if (node != nullptr)
     {
         node->add_child(new_node);
     }
+    else
+    {
+        throw std::runtime_error("Parent Doesnt Exist!\n");
+    }
     return *this;
 }
 
-OrgChart::level_order_iterator OrgChart::begin_level_order() const { return OrgChart::level_order_iterator(*this); }
+OrgChart::level_order_iterator OrgChart::begin_level_order() const
+{
+    if (this->root == nullptr)
+    {
+        throw std::runtime_error("Chart Is Empty!\n");
+    }
+    return OrgChart::level_order_iterator(*this);
+}
 
-OrgChart::level_order_iterator OrgChart::end_level_order() const { return OrgChart::level_order_iterator(OrgChart()); }
+OrgChart::level_order_iterator OrgChart::end_level_order() const
+{
+    if (this->root == nullptr)
+    {
+        throw std::runtime_error("Chart Is Empty!\n");
+    }
+    return OrgChart::level_order_iterator(OrgChart());
+}
 
 OrgChart::level_order_iterator OrgChart::begin() const { return this->begin_level_order(); }
 
 OrgChart::level_order_iterator OrgChart::end() const { return this->end_level_order(); }
 
-OrgChart::reverse_level_order_iterator OrgChart::begin_reverse_order() const { return OrgChart::reverse_level_order_iterator(*this); }
+OrgChart::reverse_level_order_iterator OrgChart::begin_reverse_order() const
+{
+    if (this->root == nullptr)
+    {
+        throw std::runtime_error("Chart Is Empty!\n");
+    }
+    return OrgChart::reverse_level_order_iterator(*this);
+}
 
-OrgChart::reverse_level_order_iterator OrgChart::reverse_order() const { return OrgChart::reverse_level_order_iterator(OrgChart()); }
+OrgChart::reverse_level_order_iterator OrgChart::reverse_order() const
+{
+    if (this->root == nullptr)
+    {
+        throw std::runtime_error("Chart Is Empty!\n");
+    }
+    return OrgChart::reverse_level_order_iterator(OrgChart());
+}
 
-OrgChart::preorder_iterator OrgChart::begin_preorder() const { return OrgChart::preorder_iterator(*this); }
+OrgChart::preorder_iterator OrgChart::begin_preorder() const
+{
+    if (this->root == nullptr)
+    {
+        throw std::runtime_error("Chart Is Empty!\n");
+    }
+    return OrgChart::preorder_iterator(*this);
+}
 
-OrgChart::preorder_iterator OrgChart::end_preorder() const { return OrgChart::preorder_iterator(OrgChart()); }
+OrgChart::preorder_iterator OrgChart::end_preorder() const
+{
+    if (this->root == nullptr)
+    {
+        throw std::runtime_error("Chart Is Empty!\n");
+    }
+    return OrgChart::preorder_iterator(OrgChart());
+}
 
 /*
     print the tree in some way, not yet done as well as i wanted
@@ -81,7 +145,7 @@ std::ostream &ariel::operator<<(std::ostream &out, OrgChart &organization)
 
     std::cout << *organization.root << std::endl;
     size_t depth = 1;
-    while (node_queue.size() > 0)
+    while (!node_queue.empty())
     {
         ChartNode *node = node_queue.front();
         node_queue.pop();
@@ -105,3 +169,12 @@ std::ostream &ariel::operator<<(std::ostream &out, OrgChart &organization)
 
     return out;
 }
+
+// bool operator==(ChartNode *node, std::string &str)
+// {
+//     return str.compare(node->get_data()) == 0;
+// }
+// bool operator==(std::string &str, ChartNode *node)
+// {
+//     return node == str;
+// }
